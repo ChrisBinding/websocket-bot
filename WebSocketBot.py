@@ -71,7 +71,7 @@ def hitbox_send_message(ws, message):
 
 def on_message(ws, message):
     
-    if message == "2::": #playing ping/ping to maintain connection. 
+    if message == "2::": #playing ping/pong to maintain connection. 
         ws.send("2::")
     
     if message.startswith("5:::"):
