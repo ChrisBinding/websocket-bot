@@ -8,19 +8,12 @@ import websocket
 import _thread
 import time
 
-
-#// Grab hitbox ip and socket id //////////////////#
-
-
-
+####### get hitbox and socket IP ######################################################
 site = "http://api.hitbox.tv/chat/servers.json?redis=true"
 
 jsite=urlopen(site).read()
 
-
-
 lines = json.loads(jsite.decode('utf-8'))
-
 
 for line in lines:
     ip = ".".join(line['server_ip'].split(".")[0].split("-")[1:])
@@ -35,7 +28,7 @@ print ("socket id:", socketid)
 socketstring = ("ws://"+ip+"/socket.io/1/websocket/" + socketid)
 print(socketstring)
 
-#// Grab token ///////////////////////////////////#
+####### Get the Token ######################################################
 
 bot = json.load(open("botvalues.json"))
 print ("Hitbox username:", bot['name'])
@@ -57,10 +50,10 @@ try:
     print ("authToken:", token)
     
 except (Exception, e):
-    print ("Error: Are correct bot credentials in botvalues.json?")
+    print ("Error: Are your bot credentials in botvalues.json? correct?")
     raise e
 
-#// Hitbox Websocket Code ////////////////////////#
+
 
 join_msg = ("5:::{\"name\":\"message\",\"args\":[{\"method\":\"joinChannel\",\"params\":{\"channel\":\""
             +bot['channel']+"\",\"name\":\""+bot['name']+"\",\"token\":\"" + token + "\",\"isAdmin\":false}}]}")
@@ -74,30 +67,33 @@ def on_message(ws, message):
     if message == "2::": #playing ping/pong to maintain connection. 
         ws.send("2::")
     
-    if message.startswith("5:::"):
-        m = json.loads(message[4:])['args'][0]
+    if message.startswith("5:::"): 
+        m = json.loads(message[4:])['args'][0] #formatting message recieved for easy parsing. 
         m2 = json.loads(m)
-        inmessage = m2['params']['text']
+        inmessage = m2['params']['text'] #retrieving the actual message in text. 
 
         if 'time' in m2['params']:
-            msg_time = m2['params']['time']
+            msg_time = m2['params']['time'] #pulling the 'time' variable from the message.
 
         if 'timestamp' in m2['params']:
-            msg_time = m2['params']['timestamp']
+            msg_time = m2['params']['timestamp'] #pulling the 'timestamp' variable from the message.
 
         if (time.strftime("%D %H:%M", time.localtime(int(msg_time)))) < (time.strftime("%D %H:%M", time.localtime(int(time.time())))):
-                return
+                return #this ends the process if the message receieved isnt a new message. This prevents old messages accidentaly triggering the bot. 
             
-        print(time.strftime("%D %H:%M", time.localtime(int(msg_time)))+ ': ' + inmessage)
+        print(time.strftime("%D %H:%M", time.localtime(int(msg_time)))+ ': ' + inmessage) #prints a timestamp and the message into the console.
 
+        ########################### BOT FUNTTIONALITY ###########################################################
+        ''' The the functionality code here should probably moved to its own file once it becomes larger.'''
+        
         if inmessage == ('drongo'):
-            hitbox_send_message(ws, 'Did someone call?')
+            hitbox_send_message(ws, 'Did someone call?') #drongo call
 
         if inmessage == ('!decklist'):
-            hitbox_send_message(ws,'https://gyazo.com/17fad4f82b409074dd08c6bcb501c495')
+            hitbox_send_message(ws,'https://gyazo.com/17fad4f82b409074dd08c6bcb501c495') #decklist
 
 
-        if ' followed' in inmessage:
+        if ' followed' in inmessage: #chat post for new follower. 
             user = inmessage[6:]
             username = ''
             for char in user:
@@ -105,15 +101,22 @@ def on_message(ws, message):
                     break
                 username=username+char
             hitbox_send_message(ws, 'Thanks for the follow ' + username + ' !')
+
+        #TBA: subscriber alert.
+        #     on screen visual stuff
+        #     automated moderation
+        #     times events (chat posts etc)
+
+        #########################################################################################################
             
-def on_error(ws, error):
+def on_error(ws, error): #error handeling (needs to be improved)
     print('error function called')
     raise error
 
-def on_close(ws):
+def on_close(ws): #on close of the bot. 
     print ("### closed ###")
 
-def on_open(ws):
+def on_open(ws): #when the bot initially connects. 
     print ("open")
     time.sleep(1)
     ws.send(join_msg)
@@ -121,7 +124,7 @@ def on_open(ws):
     hitbox_send_message(ws, "Did someone say ........ DRONGO?")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": #the main loop. The actual program. nothing actually to see down here. 
     websocket.enableTrace(False)
     ws = websocket.WebSocketApp(socketstring,
                                 on_message = on_message,
