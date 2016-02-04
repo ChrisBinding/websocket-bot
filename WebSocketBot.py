@@ -66,12 +66,15 @@ def on_message(ws, message):
     
     if message == "2::": #playing ping/pong to maintain connection. 
         ws.send("2::")
+
+    msg_name = "" #needed message name assignment - (no name for system message)
     
     if message.startswith("5:::"): 
         m = json.loads(message[4:])['args'][0] #formatting message recieved for easy parsing. 
         m2 = json.loads(m)
         inmessage = m2['params']['text'] #retrieving the actual message in text.
-
+        inmessagetype = m2['method'] #retrieving the message type 'method'
+        
         if 'name' in m2['params']:
             msg_name = m2['params']['name'] 
 
@@ -81,10 +84,14 @@ def on_message(ws, message):
         if 'timestamp' in m2['params']:
             msg_time = m2['params']['timestamp'] #pulling the 'timestamp' variable from the message.
 
-        if (time.strftime("%D %H:%M", time.localtime(int(msg_time)))) < (time.strftime("%D %H:%M", time.localtime(int(time.time())))):
-                return #this ends the process if the message receieved isnt a new message. This prevents old messages accidentaly triggering the bot. 
-            
-        print(time.strftime("%D %H:%M", time.localtime(int(msg_time)))+ ' ' + msg_name + ': ' + inmessage) #prints a timestamp and the message into the console.
+        if (time.strftime("%y/%m/%d %H:%M", time.localtime(int(msg_time)))) < (time.strftime("%y/%m/%d %H:%M", time.localtime(int(time.time()))) ):
+            return #this ends the process if the message receieved isnt a new message. This prevents old messages accidentaly triggering the bot. 
+
+        if inmessagetype == ('chatMsg'): #chat messages console output    
+            print(time.strftime("%D %H:%M", time.localtime(int(msg_time)))+ ' ' + inmessagetype + ' ' + msg_name + ': ' + inmessage) #prints a timestamp and the message into the console.
+        if inmessagetype == ('chatLog'): #chat logs console output
+            print(time.strftime("%D %H:%M", time.localtime(int(msg_time)))+ ' ' + inmessagetype + ' ' + 'SYSTEM' + ': ' + inmessage) #prints a timestamp and the message into the console.    
+
 
         ########################### BOT FUNTTIONALITY ###########################################################
         ''' The the functionality code here should probably moved to its own file once it becomes larger.'''
@@ -95,15 +102,18 @@ def on_message(ws, message):
         if inmessage == ('!decklist'):
             hitbox_send_message(ws,'https://gyazo.com/17fad4f82b409074dd08c6bcb501c495') #decklist
 
+        if inmessage == ('!nips'):
+            hitbox_send_message(ws,'https://i.gyazo.com/71cfb92a271f615b20d938cdbf5c6b40.png') #nips
 
-        if ' followed' in inmessage: #chat post for new follower. 
-            user = inmessage[6:]
-            username = ''
-            for char in user:
-                if char is '<':
-                    break
-                username=username+char
-            hitbox_send_message(ws, 'Thanks for the follow ' + username + ' !')
+        if inmessagetype == ('chatLog'):
+            if ' followed' in inmessage: #chat post for new follower. 
+                user = inmessage[6:]
+                username = ''
+                for char in user:
+                    if char is '<':
+                        break
+                    username=username+char
+                hitbox_send_message(ws, 'Thanks for the follow ' + username + ' !')
 
         #TBA: subscriber alert.
         #     on screen visual stuff
@@ -124,8 +134,7 @@ def on_open(ws): #when the bot initially connects.
     time.sleep(1)
     ws.send(join_msg)
     time.sleep(1)
-    hitbox_send_message(ws, "Did someone say ........ DRONGO?")
-
+    hitbox_send_message(ws, "***DRONGO BOT STARTED***")
 
 if __name__ == "__main__": #the main loop. The actual program. nothing actually to see down here. 
     websocket.enableTrace(False)
