@@ -70,7 +70,10 @@ def on_message(ws, message):
     if message.startswith("5:::"): 
         m = json.loads(message[4:])['args'][0] #formatting message recieved for easy parsing. 
         m2 = json.loads(m)
-        inmessage = m2['params']['text'] #retrieving the actual message in text. 
+        inmessage = m2['params']['text'] #retrieving the actual message in text.
+
+        if 'name' in m2['params']:
+            msg_name = m2['params']['name'] 
 
         if 'time' in m2['params']:
             msg_time = m2['params']['time'] #pulling the 'time' variable from the message.
@@ -81,7 +84,7 @@ def on_message(ws, message):
         if (time.strftime("%D %H:%M", time.localtime(int(msg_time)))) < (time.strftime("%D %H:%M", time.localtime(int(time.time())))):
                 return #this ends the process if the message receieved isnt a new message. This prevents old messages accidentaly triggering the bot. 
             
-        print(time.strftime("%D %H:%M", time.localtime(int(msg_time)))+ ': ' + inmessage) #prints a timestamp and the message into the console.
+        print(time.strftime("%D %H:%M", time.localtime(int(msg_time)))+ ' ' + msg_name + ': ' + inmessage) #prints a timestamp and the message into the console.
 
         ########################### BOT FUNTTIONALITY ###########################################################
         ''' The the functionality code here should probably moved to its own file once it becomes larger.'''
