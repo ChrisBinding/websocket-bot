@@ -101,7 +101,10 @@ def on_message(ws, message):
         ########################### BOT FUNTTIONALITY ###########################################################
         ''' The the functionality code here should probably moved to its own file once it becomes larger.'''
 
-        if inmessage == ('drongo'):
+        if inmessage == ('!commands'):
+            hitbox_send_message(ws, 'Command List: !decklist | !nips | !drongo') #drongo call
+
+        if inmessage == ('!drongo'):
             hitbox_send_message(ws, 'Did someone call?') #drongo call
 
         if inmessage == ('!decklist'):
@@ -149,7 +152,9 @@ def on_open(ws): #when the bot initially connects.
     time.sleep(1)
     ws.send(join_msg)
     time.sleep(1)
-    hitbox_send_message(ws, "***DRONGO BOT STARTED***")
+    hitbox_send_message(ws, "*** DrongoBOT Connected ***")
+    time.sleep(1)
+    hitbox_send_message(ws, "-> Use !commands For Command List")
 
 if __name__ == "__main__": #the main loop. The actual program. nothing actually to see down here.
     websocket.enableTrace(False)
