@@ -63,17 +63,22 @@ def hitbox_send_message(ws, message):
             +bot['channel']+"\",\"name\":\""+bot['name']+"\",\"nameColor\":\"FA5858\",\"text\":\""+message+"\"}}]}")
 
 def on_message(ws, message):
-    
+  
     if message == "2::": #playing ping/pong to maintain connection. 
         ws.send("2::")
-
-    msg_name = "" #needed message name assignment - (no name for system message)
     
     if message.startswith("5:::"): 
         m = json.loads(message[4:])['args'][0] #formatting message recieved for easy parsing. 
         m2 = json.loads(m)
-        inmessage = m2['params']['text'] #retrieving the actual message in text.
-        inmessagetype = m2['method'] #retrieving the message type 'method'
+        
+        inMessageType = m2['method'] #retrieving the message type 'method'
+
+        if inMessageType == 'loginMsg':
+            print('##### DRONGO BOT LOGGED IN #####') #recieve's system login message. 
+            return
+
+        if 'text' in m2['params']:
+            inmessage = m2['params']['text'] #retrieving the actual message in text.
         
         if 'name' in m2['params']:
             msg_name = m2['params']['name'] 
@@ -87,10 +92,10 @@ def on_message(ws, message):
         if (time.strftime("%y/%m/%d %H:%M", time.localtime(int(msg_time)))) < (time.strftime("%y/%m/%d %H:%M", time.localtime(int(time.time()))) ):
             return #this ends the process if the message receieved isnt a new message. This prevents old messages accidentaly triggering the bot. 
 
-        if inmessagetype == ('chatMsg'): #chat messages console output    
-            print(time.strftime("%D %H:%M", time.localtime(int(msg_time)))+ ' ' + inmessagetype + ' ' + msg_name + ': ' + inmessage) #prints a timestamp and the message into the console.
-        if inmessagetype == ('chatLog'): #chat logs console output
-            print(time.strftime("%D %H:%M", time.localtime(int(msg_time)))+ ' ' + inmessagetype + ' ' + 'SYSTEM' + ': ' + inmessage) #prints a timestamp and the message into the console.    
+        if inMessageType == ('chatMsg'): #chat messages console output    
+            print(time.strftime("%D %H:%M", time.localtime(int(msg_time)))+ ' ' + inMessageType + ' ' + msg_name + ': ' + inmessage) #prints a timestamp and the message into the console.
+        if inMessageType == ('chatLog'): #chat logs console output
+            print(time.strftime("%D %H:%M", time.localtime(int(msg_time)))+ ' ' + inMessageType + ' ' + 'SYSTEM' + ': ' + inmessage) #prints a timestamp and the message into the console.    
 
 
         ########################### BOT FUNTTIONALITY ###########################################################
@@ -105,7 +110,7 @@ def on_message(ws, message):
         if inmessage == ('!nips'):
             hitbox_send_message(ws,'https://i.gyazo.com/71cfb92a271f615b20d938cdbf5c6b40.png') #nips
 
-        if inmessagetype == ('chatLog'):
+        if inMessageType == ('chatLog'):
             if ' followed' in inmessage: #chat post for new follower. 
                 user = inmessage[6:]
                 username = ''
