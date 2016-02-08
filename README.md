@@ -9,3 +9,4 @@ A web-socket python bot made for the streaming service 'Hitbox'
 - [ ] On screen visual stuff
 - [ ] Automated Moderation
 - [ ] Timed Events (Chat posts etc)
+- [ ] Song requests?
